@@ -1,0 +1,26 @@
+{
+    "id": "824507A4",
+    "path": "/Volumes/GoogleDrive/My Drive/tidytuesday/2020/week 41/basketball.Rmd",
+    "project_path": "2020/week 41/basketball.Rmd",
+    "type": "r_markdown",
+    "hash": "2496264725",
+    "contents": "",
+    "dirty": false,
+    "created": 1602179078634.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "chunk_output_type": "inline",
+        "cursorPosition": "31,17",
+        "scrollLine": "8",
+        "last_setup_crc32": "397A0927a49f204d"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1602180901,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1602180901431,
+    "read_only": false,
+    "read_only_alternatives": []
+}

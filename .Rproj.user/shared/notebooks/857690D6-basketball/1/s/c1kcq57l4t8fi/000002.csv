@@ -1,0 +1,5 @@
+"0","TourneyWinRate <- tournament_points %>%"
+"0","  group_by(year, x1st_game_at_home) %>%"
+"0","  summarise(winRate = sum(tourney_w)/(sum(tourney_w)+sum(tourney_l)))"
+"2","`summarise()` regrouping output by 'year' (override with `.groups` argument)
+"
