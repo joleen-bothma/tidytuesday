@@ -1,0 +1,132 @@
+---
+title: "TidyTuesday Week 41: NCAA Women's Basketball Tournament"
+date: 2020-10-06
+author: joleenbelinda
+output: html_notebook
+---
+
+The TidyTuesday data this week comes from [FiveThirtyEight]{https://fivethirtyeight.com/features/louisiana-tech-was-the-uconn-of-the-80s/}. 
+
+## Useful info from the FiveThirtyEight article
+
+We can use NCAA Tournament seeds as a proxy for team strength over time.
+
+This doesn’t explicitly factor in how a team performs in the tournament itself, but it does measure the general quality of a team’s entire season — plus, higher seeds tend to win more in the tournament anyway. 
+
+To measure this, we awarded “seed points” in proportion to a given seed number’s expected wins in the tournament, calibrated to a 100-point scale where the No. 1 seed gets 100 points, No. 2 gets 70 points, and so forth.
+
+## Goals for this analysis
+
+Considering each row to be each school's results per conference per year. 
+
+What are the average seed points (at the end of the tournament) if a school plays their first game at home compared to if they played their first game away? How has this changed over the years?
+
+Is there a difference in the win rate if the first game is played at the home court compared to if it is played away? How has this changed over the years?
+
+## Data Preparation
+
+```{r setup}
+
+library(tidyverse)
+library(scales)
+library(ggthemes)
+
+```
+
+```{r importData}
+
+tuesdata <- tidytuesdayR::tt_load(2020, week = 41)
+
+tournament <- tuesdata$tournament
+
+```
+
+Calculate seed points according to the table given by FiveThirtyEight.
+
+```{r calculatePoints}
+tournament_points <- tournament %>%
+  mutate(seed = case_when(is.na(seed) == TRUE ~ 0,
+                          TRUE ~ as.numeric(.$seed))) %>%
+  mutate(points = case_when(seed == 1 ~ 100,
+                            seed == 2 ~ 72.7,
+                            seed == 3 ~ 54.5,
+                            seed == 4 ~ 48.5,
+                            seed == 5 ~ 33.3,
+                            seed == 6 ~ 33.3,
+                            seed == 7 ~ 27.3,
+                            seed == 8 ~ 21.2,
+                            seed == 9 ~ 18.2,
+                            seed == 10 ~ 18.2,
+                            seed == 11 ~ 18.2,
+                            seed == 12 ~ 15.2,
+                            seed == 13 ~ 9.09,
+                            seed == 14 ~ 6.06,
+                            seed == 15 ~ 3.03,
+                            seed == 16 ~ 0,
+                            TRUE ~ 0)) %>%
+  mutate(seed_points = seed*points)
+
+# View the data
+tournament_points
+
+```
+
+Clean up some dirty data in the `x1st_game_at_home` variable
+
+```{r dataCleaning}
+tournament_points <- tournament_points %>%
+  mutate(x1st_game_at_home = case_when(x1st_game_at_home == "Y^" ~ "Home",
+                                       x1st_game_at_home == "Y" ~ "Home",
+                                       x1st_game_at_home == "N" ~ "Away"))
+```
+
+## Data Visualisation
+
+Calculate average points obtained per year, split by home/away on first game. 
+
+The scatter plot shows that prior to 1995, away games awarded higher average seed points. However, after 1995 it seemed to become a more determining factor to the number of tournaments won if the first game was played on the home court.
+
+```{r avgPointsByYear}
+avgPointsByYear <- tournament_points %>%
+  group_by(year, x1st_game_at_home) %>%
+  summarise(meanSeedPoints = mean(seed_points))
+```
+
+
+```{r plot avgPointsByYear}
+# Scatter plot
+ggplot(avgPointsByYear, aes(x = year, y = meanSeedPoints)) +
+  geom_point() +
+  facet_wrap(~ x1st_game_at_home) +
+  labs(title="Average seed points per year split by home/away on first game",y="Average Seed Points", x="Year",caption="TidyTuesday: NCAA Women's Basketball Tournament") +
+  theme_pander() +
+  theme(strip.text.x = element_text(size = 14),
+        axis.title.y = element_text(margin = margin(20, 15, 20, 15)),
+        panel.background = element_rect(fill = NA, color = "black"))
+```
+
+Calulcate the win rate per year split by home/away on first game.
+
+The scatter plot shows that playing the first game at home has a big impact on the overall win rate in tournaments. There is an improvement in the win rate around 2005-2010 for first games played away.
+
+```{r TourneyWinRate}
+TourneyWinRate <- tournament_points %>%
+  group_by(year, x1st_game_at_home) %>%
+  summarise(winRate = sum(tourney_w)/(sum(tourney_w)+sum(tourney_l)))
+```
+
+
+```{r plot TourneyWinRate}
+# Barplot
+ggplot(TourneyWinRate, aes(x = year, y = winRate)) +
+  geom_point() +
+  facet_wrap(~ x1st_game_at_home) +
+  scale_y_continuous(labels = label_percent(accuracy = 1), n.breaks = 8) +
+  labs(title="Win rate per year split by home/away on first game",y="Win Rate", x="Year",caption="TidyTuesday: NCAA Women's Basketball Tournament") +
+  theme_pander() +
+  theme(strip.text.x = element_text(size = 14),
+        axis.title.y = element_text(margin = margin(20, 15, 20, 15)),
+        panel.background = element_rect(fill = NA, color = "black"))
+```
+
+

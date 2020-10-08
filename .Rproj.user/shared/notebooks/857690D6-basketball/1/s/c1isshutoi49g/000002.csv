@@ -1,0 +1,4 @@
+"0","tournament_points <- tournament_points %>%"
+"0","  mutate(x1st_game_at_home = case_when(x1st_game_at_home == ""Y^"" ~ ""Home"","
+"0","                                       x1st_game_at_home == ""Y"" ~ ""Home"","
+"0","                                       x1st_game_at_home == ""N"" ~ ""Away""))"
