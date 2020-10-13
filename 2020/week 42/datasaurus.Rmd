@@ -1,0 +1,78 @@
+---
+title: "TidyTuesday Week 42: The Datasaurus Dozen"
+date: 2020-10-13
+author: joleenbelinda
+output: html_notebook
+---
+
+The data this week comes from Alberto Cairo in his original [blog post](http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html) published in 2016. Later, an R package was created by Steph Locke + Lucy McGowan:[`datasauRus`](https://cran.r-project.org/web/packages/datasauRus/vignettes/Datasaurus.html) containing the Datasaurus Dozen dataset.
+
+## Goals for this Analysis
+
+The golden purpose of the Datasaurus dataset is to teach the importance of visualising data rather than only reporting on summary statistics. 
+
+I am using this opportunity to learn how to create an animation that cycles through each plot using `gganimate`.
+
+
+## Data Preparation
+
+```{r setup}
+
+library(tidyverse)
+library(ggthemes)
+library(gganimate)
+
+```
+
+```{r importData}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 42)
+datasaurus <- tuesdata$datasaurus
+```
+
+```{r viewData}
+datasaurus
+```
+## First look: summaries
+
+First, we are going to have a look at the summary statistics for the data
+
+```{r summary}
+
+datasaurus %>%
+  group_by(dataset) %>%
+  summarise(mean_x    = mean(x),
+            mean_y    = mean(y),
+            sd_x = sd(x),
+            sd_y = sd(y),
+            corr  = cor(x, y)
+    )
+
+```
+
+## Second look: visualisation
+
+Second, we plot each dataset as a scatterplot.
+
+```{r scatterplots, fig.height=7, fig.width=5}
+ggplot(datasaurus, aes(x = x, y = y)) +
+  facet_wrap(~ dataset, ncol = 3) +
+  geom_point() +
+  labs(title="Scatterplot of 13 Datasets with Similar Summary Statistics",caption="TidyTuesday: Datasaurus Dozen") +
+  theme_pander()
+```
+## Animate the plots
+
+Creating an animation with `gganimate` is incredibly easy - you create your `ggplot` scatterplot as normal and then add the option for which states you want the animation to transition between.
+
+```{r animation}
+dino_animation <- ggplot(datasaurus, aes(x = x, y = y)) +
+  geom_point() +
+  theme_pander() +
+  transition_states(dataset) +
+  ease_aes('linear') +
+  labs(title = "Datasaurus Dozen Scatterplots", subtitle = "Dataset: {closest_state}", caption="TidyTuesday: Datasaurus Dozen")
+
+# Save the animation
+anim_save(here::here("2020", "week 42", "output", "dinosaurus_animation.gif"))
+```
+
