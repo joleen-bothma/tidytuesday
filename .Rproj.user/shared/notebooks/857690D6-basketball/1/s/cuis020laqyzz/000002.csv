@@ -1,7 +1,0 @@
-"0",""
-"0","library(tidyverse)"
-"0","library(scales)"
-"0","library(ggthemes)"
-"0",""
-"0","theme_set(theme_pander(base_size = 50, base_family = ""Roboto Condensed""))"
-"0",""
